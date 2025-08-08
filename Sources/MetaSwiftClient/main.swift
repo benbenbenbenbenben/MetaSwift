@@ -26,16 +26,12 @@ print("The value \(result) was produced by the code \"\(code)\"")
 
 print("The name of the type FooBar is \(fooBar)")
 
-@trait()
+@trait
 struct Fooer {
     func myMethod() {
         print("Hello, World!")
     }
 }
-
-// extension MetaSwift.MetaSwiftTrait {
-//     static let myTrait: MetaSwiftTrait = MetaSwiftTrait.of(MyTrait.self)
-// }
 
 @withtrait(Fooer.Trait)
 struct SomethingThatHasFoo {
