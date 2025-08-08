@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:MetaSwift}",
+            "name": "Debug MetaSwiftClient",
+            "program": "${workspaceFolder:MetaSwift}/.build/debug/MetaSwiftClient",
+            "preLaunchTask": "swift: Build Debug MetaSwiftClient"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:MetaSwift}",
+            "name": "Release MetaSwiftClient",
+            "program": "${workspaceFolder:MetaSwift}/.build/release/MetaSwiftClient",
+            "preLaunchTask": "swift: Build Release MetaSwiftClient"
+        }
+    ]
+}
