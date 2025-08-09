@@ -44,7 +44,3 @@ public macro withtrait(_ trait: TraitIdentity) =
 @freestanding(expression)
 public macro nameof<T>(_ type: T.Type) -> String =
     #externalMacro(module: "MetaSwiftMacros", type: "NameOfMacro")
-
-@freestanding(expression)
-public macro trait<T>(_ type: T) -> String =
-    #externalMacro(module: "MetaSwiftMacros", type: "TraitMacro")
