@@ -61,7 +61,7 @@ public struct TraitMacro: PeerMacro, ExtensionMacro {
         let hasDefaultInit = structDecl.memberBlock.members.contains { member in
             if let initDecl = member.decl.as(InitializerDeclSyntax.self) {
                 // Check if init has no parameters and is not failable
-                return initDecl.signature.input.parameterList.isEmpty && initDecl.optionalMark == nil
+                return initDecl.signature.parameterClause.parameters.isEmpty && initDecl.optionalMark == nil
             }
             return false
         }
