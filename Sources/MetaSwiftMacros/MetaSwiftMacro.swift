@@ -53,9 +53,24 @@ public struct TraitMacro: PeerMacro, ExtensionMacro {
         conformingTo protocols: [SwiftSyntax.TypeSyntax],
         in context: some SwiftSyntaxMacros.MacroExpansionContext
     ) throws -> [SwiftSyntax.ExtensionDeclSyntax] {
-        guard let typeName = declaration.as(StructDeclSyntax.self)?.name.text else {
+        guard let structDecl = declaration.as(StructDeclSyntax.self) else {
             throw MacroError("TraitMacro can only be applied to a struct")
         }
+        let typeName = structDecl.name.text
+
+        // Check for parameterless initializer
+        let hasDefaultInit = structDecl.memberBlock.members.contains { member in
+            if let initDecl = member.decl.as(InitializerDeclSyntax.self) {
+                // Check if init has no parameters and is not failable
+                return initDecl.signature.input.parameterList.isEmpty && initDecl.optionalMark == nil
+            }
+            return false
+        }
+
+        if !hasDefaultInit {
+            throw MacroError("Struct \(typeName) must have an init() with no parameters to be used as a trait")
+        }
+
         let decl: DeclSyntax = """
             extension \(raw: typeName) : MetaSwift.MetaSwiftTrait {
                 public static var Trait: TraitIdentity {get{

@@ -32,6 +32,9 @@ struct Fooer {
     func myMethod() {
         print("Hello, World!")
     }
+    init() {
+        abc = 42
+    }
 }
 
 @withtrait(Fooer.Trait)
