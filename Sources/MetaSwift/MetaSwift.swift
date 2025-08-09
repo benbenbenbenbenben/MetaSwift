@@ -31,6 +31,7 @@ public enum TraitIdentity: CustomStringConvertible {
 
 public protocol MetaSwiftTrait {
     static var Trait: TraitIdentity { get }
+    init()
 }
 
 @attached(member, names: arbitrary)

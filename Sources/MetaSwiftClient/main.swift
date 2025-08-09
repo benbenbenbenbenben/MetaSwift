@@ -26,8 +26,9 @@ print("The value \(result) was produced by the code \"\(code)\"")
 
 print("The name of the type FooBar is \(fooBar)")
 
-@trait
+@trait()
 struct Fooer {
+    let abc: Int
     func myMethod() {
         print("Hello, World!")
     }
