@@ -115,38 +115,34 @@ public struct TraitMacro: PeerMacro, ExtensionMacro {
 public struct WithMacro: MemberMacro {
     // TODO: re-enable extension macro to add With<TraitName> protocol...
 
-    // public static func expansion(
-    //     of node: SwiftSyntax.AttributeSyntax,
-    //     attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
-    //     providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol,
-    //     conformingTo protocols: [SwiftSyntax.TypeSyntax],
-    //     in context: some SwiftSyntaxMacros.MacroExpansionContext
-    // ) throws -> [SwiftSyntax.ExtensionDeclSyntax] {
-    //     // Can only be applied to a struct
-    //     guard let structDecl = declaration.as(StructDeclSyntax.self) else {
-    //         throw MacroError("WithMacro can only be applied to a struct")
-    //     }
-    //     // Get the trait name from the attribute argument
-    //     guard let stringLiteralExpr = node.argument?.as(StringLiteralExprSyntax.self),
-    //         let firstSegment = stringLiteralExpr.segments.first?.as(StringSegmentSyntax.self)
-    //     else {
-    //         throw MacroError("WithMacro requires a trait name")
-    //     }
-    //     let traitName = firstSegment.content.text
-    //     // Create the extension declaration
-    //     let traitType = "MetaSwift.MetaSwiftTrait.\(traitName)"
-    //     let decl: DeclSyntax = """
-    //         extension \(raw: structDecl.name.text) : \(raw: traitType) {
-    //             var \(raw: traitName.lowercased()): \(raw: structDecl.name.text) {
-    //                 return self
-    //             }
-    //         }
-    //         """
-    //     guard let extensionDecl = ExtensionDeclSyntax(decl) else {
-    //         throw MacroError("Failed to create extension declaration")
-    //     }
-    //     return [extensionDecl]
-    // }
+   public static func expansion(
+       of node: SwiftSyntax.AttributeSyntax,
+       attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
+       providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol,
+       conformingTo protocols: [SwiftSyntax.TypeSyntax],
+       in context: some SwiftSyntaxMacros.MacroExpansionContext
+   ) throws -> [SwiftSyntax.ExtensionDeclSyntax] {
+       // Can only be applied to a struct
+       guard let structDecl = declaration.as(StructDeclSyntax.self) else {
+           throw MacroError("WithMacro can only be applied to a struct")
+       }
+       // Get the trait name from the attribute argument
+       guard let stringLiteralExpr = node.argument?.as(StringLiteralExprSyntax.self),
+           let firstSegment = stringLiteralExpr.segments.first?.as(StringSegmentSyntax.self)
+       else {
+           throw MacroError("WithMacro requires a trait name")
+       }
+       let traitName = firstSegment.content.text
+       // The protocol is With<TraitTypeName>
+       let protocolName = "With\(traitName)"
+       let decl: DeclSyntax = """
+           extension \(raw: structDecl.name.text): \(raw: protocolName) {}
+           """
+       guard let extensionDecl = ExtensionDeclSyntax(decl) else {
+           throw MacroError("Failed to create extension declaration")
+       }
+       return [extensionDecl]
+   }
     public static func expansion(
         of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,

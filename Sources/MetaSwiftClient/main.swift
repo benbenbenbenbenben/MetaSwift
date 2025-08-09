@@ -43,3 +43,11 @@ struct SomethingThatHasFoo {
         self.fooer.myMethod()
     }
 }
+
+let aaa = SomethingThatHasFoo()
+if let withFooer = aaa as? WithFooer {
+    print("aaa conforms to WithFooer, fooer.abc = \(withFooer.fooer.abc)")
+} else {
+    print("aaa does NOT conform to WithFooer")
+}
+// TODO: test if we can treat aaa as WithFooer protocol
