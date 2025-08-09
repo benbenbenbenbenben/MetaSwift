@@ -43,7 +43,6 @@ public struct NameOfMacro: ExpressionMacro {
     }
 }
 
-// TODO: any trait type should conform to a default init()
 // TODO: we should add an init that does a cast or throw to the trait type i.e. let thingAsTrait = try Trait(thing)
 public struct TraitMacro: PeerMacro, ExtensionMacro {
     public static func expansion(
