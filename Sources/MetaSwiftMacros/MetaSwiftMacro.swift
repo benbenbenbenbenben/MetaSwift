@@ -57,7 +57,7 @@ public struct TraitMacro: PeerMacro, ExtensionMacro {
             throw MacroError("TraitMacro can only be applied to a struct")
         }
         let decl: DeclSyntax = """
-            extension \(raw: typeName) : MetaSwiftTrait {
+            extension \(raw: typeName) : MetaSwift.MetaSwiftTrait {
                 public static var Trait: TraitIdentity {get{
                     return .of("\(raw:typeName)")
                 }}
