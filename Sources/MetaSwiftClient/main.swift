@@ -37,7 +37,7 @@ struct Fooer {
     }
 }
 
-@withtrait(Fooer.Trait)
+@with(Fooer.Trait)
 struct SomethingThatHasFoo {
     init(){
         self.fooer.myMethod()

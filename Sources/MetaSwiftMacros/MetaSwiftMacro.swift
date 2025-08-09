@@ -112,7 +112,7 @@ public struct TraitMacro: PeerMacro, ExtensionMacro {
 
 }
 
-public struct WithTraitMacro: MemberMacro {
+public struct WithMacro: MemberMacro {
     // TODO: re-enable extension macro to add With<TraitName> protocol...
 
     // public static func expansion(
@@ -124,13 +124,13 @@ public struct WithTraitMacro: MemberMacro {
     // ) throws -> [SwiftSyntax.ExtensionDeclSyntax] {
     //     // Can only be applied to a struct
     //     guard let structDecl = declaration.as(StructDeclSyntax.self) else {
-    //         throw MacroError("WithTraitMacro can only be applied to a struct")
+    //         throw MacroError("WithMacro can only be applied to a struct")
     //     }
     //     // Get the trait name from the attribute argument
     //     guard let stringLiteralExpr = node.argument?.as(StringLiteralExprSyntax.self),
     //         let firstSegment = stringLiteralExpr.segments.first?.as(StringSegmentSyntax.self)
     //     else {
-    //         throw MacroError("WithTraitMacro requires a trait name")
+    //         throw MacroError("WithMacro requires a trait name")
     //     }
     //     let traitName = firstSegment.content.text
     //     // Create the extension declaration
@@ -153,17 +153,17 @@ public struct WithTraitMacro: MemberMacro {
         conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        // this macro is call like @withtrait(MyTrait.Trait)
-        // we need to stringify the reference expression "MyTrait.Trait" and 
+        // this macro is call like @with(MyTrait.Trait)
+        // we need to stringify the reference expression "MyTrait.Trait" and
         // create a member variable with the name of the trait.
         
         guard var traitTypeName = node.arguments?.as(LabeledExprListSyntax.self)?.first?.expression.description else {
-            throw MacroError("withtrait macro requires a trait argument")
+            throw MacroError("with macro requires a trait argument")
         }
 
         // ensure traitTypeName ends with .Trait
         guard traitTypeName.description.hasSuffix(".Trait") else {
-            throw MacroError("withtrait macro requires a trait argument ending with .Trait")
+            throw MacroError("with macro requires a trait argument ending with .Trait")
         }
 
         // remove the .Trait suffix
@@ -197,6 +197,6 @@ struct MetaSwiftPlugin: CompilerPlugin {
         StringifyMacro.self,
         TraitMacro.self,
         NameOfMacro.self,
-        WithTraitMacro.self,
+        WithMacro.self,
     ]
 }

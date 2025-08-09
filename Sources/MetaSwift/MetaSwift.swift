@@ -35,8 +35,8 @@ public protocol MetaSwiftTrait {
 }
 
 @attached(member, names: arbitrary)
-public macro withtrait(_ trait: TraitIdentity) =
-    #externalMacro(module: "MetaSwiftMacros", type: "WithTraitMacro")
+public macro with(_ trait: TraitIdentity) =
+    #externalMacro(module: "MetaSwiftMacros", type: "WithMacro")
 
 /// A macro that produces the name of a type as a string. For example,
 ///     #nameof(Int.self)
