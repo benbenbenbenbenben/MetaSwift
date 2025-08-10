@@ -45,9 +45,9 @@ struct SomethingThatHasFoo {
 }
 
 let aaa = SomethingThatHasFoo()
-if let withFooer = aaa as? WithFooer {
-    print("aaa conforms to WithFooer, fooer.abc = \(withFooer.fooer.abc)")
+if let withFooer = Fooer(from: aaa) {
+    print("aaa conforms to WithTrait, aaa has property fooer, fooer.abc = \(withFooer.abc)")
 } else {
-    print("aaa does NOT conform to WithFooer")
+    print("aaa does NOT conform to WithTrait")
 }
 // TODO: test if we can treat aaa as WithFooer protocol

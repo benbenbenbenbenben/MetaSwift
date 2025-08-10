@@ -112,7 +112,7 @@ public struct TraitMacro: PeerMacro, ExtensionMacro {
 
 }
 
-public struct WithMacro: MemberMacro {
+public struct WithMacro: MemberMacro, ExtensionMacro {
     // TODO: re-enable extension macro to add With<TraitName> protocol...
 
    public static func expansion(
@@ -127,14 +127,13 @@ public struct WithMacro: MemberMacro {
            throw MacroError("WithMacro can only be applied to a struct")
        }
        // Get the trait name from the attribute argument
-       guard let stringLiteralExpr = node.argument?.as(StringLiteralExprSyntax.self),
+       guard let stringLiteralExpr = node.arguments?.as(StringLiteralExprSyntax.self),
            let firstSegment = stringLiteralExpr.segments.first?.as(StringSegmentSyntax.self)
        else {
            throw MacroError("WithMacro requires a trait name")
        }
        let traitName = firstSegment.content.text
        // The protocol is With<TraitTypeName>
-       let protocolName = "With\(traitName)"
        let decl: DeclSyntax = """
            extension \(raw: structDecl.name.text): WithTrait {}
            """
@@ -175,7 +174,11 @@ public struct WithMacro: MemberMacro {
             guard let traitProp = try withTrait["\(raw: traitName)"] else {
                 throw MacroError("Failed to find property \(raw: traitName) in withTrait")
             }
-            // copy from traitProp to self
+            guard let value = traitProp as? \(raw: traitTypeName) else {
+                throw MacroError("Property \(raw: traitName) is not of type \(raw: traitTypeName)")
+            }
+            self = value
+        }
 
         """
         return [memDecl]
