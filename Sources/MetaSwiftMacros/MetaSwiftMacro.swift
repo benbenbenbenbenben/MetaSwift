@@ -175,10 +175,10 @@ public struct WithMacro: MemberMacro, ExtensionMacro {
         public init(from: WithTrait) throws {
             // lookup property named \(raw: traitName) in withTrait
             guard let traitProp = try withTrait["\(raw: traitName)"] else {
-                throw MacroError("Failed to find property \(raw: traitName) in withTrait")
+                throw MetaSwift.MacroError("Failed to find property \(raw: traitName) in withTrait")
             }
             guard let value = traitProp as? \(raw: traitTypeName) else {
-                throw MacroError("Property \(raw: traitName) is not of type \(raw: traitTypeName)")
+                throw MetaSwift.MacroError("Property \(raw: traitName) is not of type \(raw: traitTypeName)")
             }
             self = value
         }
@@ -188,14 +188,14 @@ public struct WithMacro: MemberMacro, ExtensionMacro {
     }
 }
 
-struct MacroError: Error, CustomStringConvertible {
+public struct MacroError: Error, CustomStringConvertible {
     let message: String
 
     init(_ message: String) {
         self.message = message
     }
 
-    var description: String {
+    public var description: String {
         "MacroError: \(message)"
     }
 }
