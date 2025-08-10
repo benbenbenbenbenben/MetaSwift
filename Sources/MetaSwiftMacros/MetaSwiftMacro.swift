@@ -136,7 +136,7 @@ public struct WithMacro: MemberMacro {
        // The protocol is With<TraitTypeName>
        let protocolName = "With\(traitName)"
        let decl: DeclSyntax = """
-           extension \(raw: structDecl.name.text): \(raw: protocolName) {}
+           extension \(raw: structDecl.name.text): WithTrait {}
            """
        guard let extensionDecl = ExtensionDeclSyntax(decl) else {
            throw MacroError("Failed to create extension declaration")
@@ -170,6 +170,13 @@ public struct WithMacro: MemberMacro {
 
         let memDecl:DeclSyntax = """
         let \(raw: traitName): \(raw: traitTypeName) = \(raw: traitTypeName)()
+        init(_ withTrait: WithTrait) throws {
+            // lookup property named \(raw: traitName) in withTrait
+            guard let traitProp = try withTrait["\(raw: traitName)"] else {
+                throw MacroError("Failed to find property \(raw: traitName) in withTrait")
+            }
+            // copy from traitProp to self
+
         """
         return [memDecl]
     }

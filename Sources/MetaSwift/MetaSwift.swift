@@ -32,9 +32,13 @@ public enum TraitIdentity: CustomStringConvertible {
 public protocol MetaSwiftTrait {
     static var Trait: TraitIdentity { get }
     init()
+    init(_ withTrait: WithTrait) throws
 }
 
+public protocol WithTrait : Sendable {}
+
 @attached(member, names: arbitrary)
+@attached(extension, conformances: WithTrait)
 public macro with(_ trait: TraitIdentity) =
     #externalMacro(module: "MetaSwiftMacros", type: "WithMacro")
 
