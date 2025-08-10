@@ -126,14 +126,17 @@ public struct WithMacro: MemberMacro, ExtensionMacro {
        guard let structDecl = declaration.as(StructDeclSyntax.self) else {
            throw MacroError("WithMacro can only be applied to a struct")
        }
-       // Get the trait name from the attribute argument
-       guard let stringLiteralExpr = node.arguments?.as(StringLiteralExprSyntax.self),
-           let firstSegment = stringLiteralExpr.segments.first?.as(StringSegmentSyntax.self)
-       else {
-           throw MacroError("WithMacro requires a trait name")
-       }
-       let traitName = firstSegment.content.text
-       // The protocol is With<TraitTypeName>
+       guard var traitTypeName = node.arguments?.as(LabeledExprListSyntax.self)?.first?.expression.description else {
+            throw MacroError("with macro requires a trait argument")
+        }
+
+        // ensure traitTypeName ends with .Trait
+        guard traitTypeName.description.hasSuffix(".Trait") else {
+            throw MacroError("with macro requires a trait argument ending with .Trait")
+        }
+
+        // remove the .Trait suffix
+        traitTypeName = "\(traitTypeName.dropLast(6))"
        let decl: DeclSyntax = """
            extension \(raw: structDecl.name.text): WithTrait {}
            """
@@ -169,7 +172,7 @@ public struct WithMacro: MemberMacro, ExtensionMacro {
 
         let memDecl:DeclSyntax = """
         let \(raw: traitName): \(raw: traitTypeName) = \(raw: traitTypeName)()
-        init(_ withTrait: WithTrait) throws {
+        public init(from: WithTrait) throws {
             // lookup property named \(raw: traitName) in withTrait
             guard let traitProp = try withTrait["\(raw: traitName)"] else {
                 throw MacroError("Failed to find property \(raw: traitName) in withTrait")

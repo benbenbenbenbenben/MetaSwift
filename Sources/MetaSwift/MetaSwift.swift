@@ -32,7 +32,7 @@ public enum TraitIdentity: CustomStringConvertible {
 public protocol MetaSwiftTrait {
     static var Trait: TraitIdentity { get }
     init()
-    init(_ withTrait: WithTrait) throws
+    init(from: WithTrait) throws
 }
 
 public protocol WithTrait : Sendable {}

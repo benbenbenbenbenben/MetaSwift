@@ -27,7 +27,7 @@ print("The value \(result) was produced by the code \"\(code)\"")
 print("The name of the type FooBar is \(fooBar)")
 
 @trait()
-struct Fooer {
+struct Abc {
     let abc: Int
     func myMethod() {
         print("Hello, World!")
@@ -37,17 +37,16 @@ struct Fooer {
     }
 }
 
-@with(Fooer.Trait)
-struct SomethingThatHasFoo {
+@with(Abc.Trait)
+struct SomethingThatHasAbc {
     init(){
-        self.fooer.myMethod()
+        self.abc.myMethod()
     }
 }
 
-let aaa = SomethingThatHasFoo()
-if let withFooer = Fooer(from: aaa) {
-    print("aaa conforms to WithTrait, aaa has property fooer, fooer.abc = \(withFooer.abc)")
+let somethingThatHasAbc = SomethingThatHasAbc()
+if let abcFromSomethingWithAbc = Abc.init(from: somethingThatHasAbc) as Abc {
+    print("somethingThatHasAbc conforms to WithTrait, somethingThatHasAbc has property abc, abc.abc = \(abcFromSomethingWithAbc.abc)")
 } else {
-    print("aaa does NOT conform to WithTrait")
+    print("somethingThatHasAbc does NOT conform to WithTrait")
 }
-// TODO: test if we can treat aaa as WithFooer protocol
