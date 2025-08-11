@@ -12,19 +12,17 @@ public macro stringify<T>(_ value: T) -> (T, String) =
     #externalMacro(module: "MetaSwiftMacros", type: "StringifyMacro")
 
 // A macro that can be used to define traits or other metadata.
-@attached(peer, names: prefixed(With), named(MetaSwiftTrait))
+//@attached(peer, names: prefixed(With), named(MetaSwiftTrait))
 @attached(extension, names: arbitrary, conformances: MetaSwiftTrait)
 public macro trait() = #externalMacro(module: "MetaSwiftMacros", type: "TraitMacro")
 
 public enum TraitIdentity: CustomStringConvertible {
     case of(String)
-    public var description:String {
-        get {
-            // return the name of the trait as a string
-            switch self {
-            case .of(let name):
-                return name
-            }
+    public var description: String {
+        // return the name of the trait as a string
+        switch self {
+        case .of(let name):
+            return name
         }
     }
 }
@@ -35,7 +33,9 @@ public protocol MetaSwiftTrait {
     init(from: WithTrait) throws
 }
 
-public protocol WithTrait : Sendable {}
+public protocol WithTrait: Sendable {
+    subscript(dynamicMember member: String) -> Any? { get }
+}
 
 @attached(member, names: arbitrary)
 @attached(extension, conformances: WithTrait)

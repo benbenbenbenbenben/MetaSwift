@@ -45,7 +45,7 @@ struct SomethingThatHasAbc {
 }
 
 let somethingThatHasAbc = SomethingThatHasAbc()
-if let abcFromSomethingWithAbc = Abc.init(from: somethingThatHasAbc) as Abc {
+if let abcFromSomethingWithAbc = try? Abc(from: somethingThatHasAbc) {
     print("somethingThatHasAbc conforms to WithTrait, somethingThatHasAbc has property abc, abc.abc = \(abcFromSomethingWithAbc.abc)")
 } else {
     print("somethingThatHasAbc does NOT conform to WithTrait")

@@ -44,7 +44,7 @@ public struct NameOfMacro: ExpressionMacro {
 }
 
 // TODO: we should add an init that does a cast or throw to the trait type i.e. let thingAsTrait = try Trait(thing)
-public struct TraitMacro: PeerMacro, ExtensionMacro {
+public struct TraitMacro: ExtensionMacro {
     public static func expansion(
         of node: SwiftSyntax.AttributeSyntax,
         attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
@@ -70,11 +70,34 @@ public struct TraitMacro: PeerMacro, ExtensionMacro {
             throw MacroError("Struct \(typeName) must have an init() with no parameters to be used as a trait")
         }
 
+        // Get the trait name, which is the first letter lowercased
+        let traitName = typeName
+        let traitNameLowercased = traitName.prefix(1).lowercased() + traitName.dropFirst()
+
         let decl: DeclSyntax = """
             extension \(raw: typeName) : MetaSwift.MetaSwiftTrait {
+                struct \(raw: traitName)Error: Error, CustomStringConvertible {
+                    let message: String
+                    init(_ message: String) {
+                        self.message = message
+                    }
+                    public var description: String {
+                        "TraitError: \\(message)"
+                    }
+                }
                 public static var Trait: TraitIdentity {get{
                     return .of("\(raw:typeName)")
                 }}
+                public init(from: WithTrait) throws {
+                    // lookup property named \(raw: traitNameLowercased) in from
+                    guard let traitProp = from[dynamicMember: "\(raw: traitNameLowercased)"] else {
+                        throw \(raw: traitName)Error("Failed to find property \(raw: traitNameLowercased) in from")
+                    }
+                    guard let value = traitProp as? \(raw: traitName) else {
+                        throw \(raw: traitName)Error("Property \(raw: traitNameLowercased) is not of type \(raw: traitName)")
+                    }
+                    self = value
+                }
             }
             """
         guard let extensionDecl = ExtensionDeclSyntax(decl) else {
@@ -83,32 +106,6 @@ public struct TraitMacro: PeerMacro, ExtensionMacro {
         return [extensionDecl]
     }
 
-    public static func expansion(
-        of node: SwiftSyntax.AttributeSyntax,
-        providingPeersOf declaration: some SwiftSyntax.DeclSyntaxProtocol,
-        in context: some SwiftSyntaxMacros.MacroExpansionContext
-    )
-        throws -> [SwiftSyntax.DeclSyntax]
-    {
-        // This macro is attached to a type and creates a protocol with a single property.
-        // The protocol name is the type name prefixed with "With".
-        // The property name is the type name with the first letter lowercased.
-        guard let typeName = declaration.as(StructDeclSyntax.self)?.name.text else {
-            throw MacroError("TraitMacro can only be applied to a struct")
-        }
-
-        // lowercase the first letter to use it as a variable name.
-        let variableName = typeName.prefix(1).lowercased() + typeName.dropFirst()
-
-        let decl: DeclSyntax = """
-            protocol With\(raw: typeName) {
-                var \(raw: variableName): \(raw: typeName) { get }
-            }
-            """
-        return [
-            decl
-        ]
-    }
 
 }
 
@@ -172,17 +169,14 @@ public struct WithMacro: MemberMacro, ExtensionMacro {
 
         let memDecl:DeclSyntax = """
         let \(raw: traitName): \(raw: traitTypeName) = \(raw: traitTypeName)()
-        public init(from: WithTrait) throws {
-            // lookup property named \(raw: traitName) in withTrait
-            guard let traitProp = try withTrait["\(raw: traitName)"] else {
-                throw MetaSwift.MacroError("Failed to find property \(raw: traitName) in withTrait")
+        subscript(dynamicMember member: String) -> Any? {
+            // this allows us to access the trait property as a dynamic member
+            // e.g. let abc = somethingWithTrait.abc
+            if member == "\(raw: traitName)" {
+                return self.\(raw: traitName)
             }
-            guard let value = traitProp as? \(raw: traitTypeName) else {
-                throw MetaSwift.MacroError("Property \(raw: traitName) is not of type \(raw: traitTypeName)")
-            }
-            self = value
+            return nil
         }
-
         """
         return [memDecl]
     }
