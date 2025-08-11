@@ -168,7 +168,7 @@ public struct WithMacro: MemberMacro, ExtensionMacro {
         let traitName = traitTypeName.prefix(1).lowercased() + traitTypeName.dropFirst()
 
         let memDecl:DeclSyntax = """
-        let \(raw: traitName): \(raw: traitTypeName) = \(raw: traitTypeName)()
+        var \(raw: traitName): \(raw: traitTypeName) = \(raw: traitTypeName)()
         subscript(dynamicMember member: String) -> Any? {
             // this allows us to access the trait property as a dynamic member
             // e.g. let abc = somethingWithTrait.abc
