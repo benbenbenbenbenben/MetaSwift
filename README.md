@@ -17,7 +17,7 @@ Metaprogramming utilities for Swift using Swift Macros. Provides freestanding an
 
 - Swift tools: 6.1 (per [Package.swift](Package.swift))
 - Platforms: macOS 15+, Mac Catalyst 15+ (per [Package.swift](Package.swift))
-- Dependency: `swift-syntax` (from `601.0.0-latest`)
+- Dependency: `swift-syntax` (from `601.0.1`)
 
 ## Installation
 
