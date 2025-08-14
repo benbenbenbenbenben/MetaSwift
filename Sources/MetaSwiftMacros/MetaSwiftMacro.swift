@@ -110,8 +110,6 @@ public struct TraitMacro: ExtensionMacro {
 }
 
 public struct WithMacro: MemberMacro, ExtensionMacro {
-    // TODO: re-enable extension macro to add With<TraitName> protocol...
-
    public static func expansion(
        of node: SwiftSyntax.AttributeSyntax,
        attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
