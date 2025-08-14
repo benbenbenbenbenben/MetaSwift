@@ -121,24 +121,23 @@ public struct WithMacro: MemberMacro, ExtensionMacro {
        guard let structDecl = declaration.as(StructDeclSyntax.self) else {
            throw MacroError("WithMacro can only be applied to a struct")
        }
-       guard var traitTypeName = node.arguments?.as(LabeledExprListSyntax.self)?.first?.expression.description else {
-            throw MacroError("with macro requires a trait argument")
+        guard let args = node.arguments?.as(LabeledExprListSyntax.self), !args.isEmpty else {
+            throw MacroError("with macro requires at least one trait argument")
         }
 
-        // ensure traitTypeName ends with .Trait
-        guard traitTypeName.description.hasSuffix(".Trait") else {
-            throw MacroError("with macro requires a trait argument ending with .Trait")
+        for arg in args {
+            guard let traitTypeName = arg.expression.description as String?,
+                  traitTypeName.hasSuffix(".Trait") else {
+                throw MacroError("with macro requires trait arguments ending with .Trait")
+            }
         }
-
-        // remove the .Trait suffix
-        traitTypeName = "\(traitTypeName.dropLast(6))"
-       let decl: DeclSyntax = """
-           extension \(raw: structDecl.name.text): WithTrait {}
-           """
-       guard let extensionDecl = ExtensionDeclSyntax(decl) else {
-           throw MacroError("Failed to create extension declaration")
-       }
-       return [extensionDecl]
+        let decl: DeclSyntax = """
+            extension \(raw: structDecl.name.text): WithTrait {}
+            """
+        guard let extensionDecl = ExtensionDeclSyntax(decl) else {
+            throw MacroError("Failed to create extension declaration")
+        }
+        return [extensionDecl]
    }
     public static func expansion(
         of node: AttributeSyntax,
@@ -150,33 +149,47 @@ public struct WithMacro: MemberMacro, ExtensionMacro {
         // we need to stringify the reference expression "MyTrait.Trait" and
         // create a member variable with the name of the trait.
         
-        guard var traitTypeName = node.arguments?.as(LabeledExprListSyntax.self)?.first?.expression.description else {
-            throw MacroError("with macro requires a trait argument")
+        guard let args = node.arguments?.as(LabeledExprListSyntax.self), !args.isEmpty else {
+            throw MacroError("with macro requires at least one trait argument")
         }
 
-        // ensure traitTypeName ends with .Trait
-        guard traitTypeName.description.hasSuffix(".Trait") else {
-            throw MacroError("with macro requires a trait argument ending with .Trait")
-        }
+        var memberDecls: [DeclSyntax] = []
+        var traitNames: [String] = []
+        var traitTypeNames: [String] = []
 
-        // remove the .Trait suffix
-        traitTypeName = "\(traitTypeName.dropLast(6))"
-
-        // get trait type name with the first letter lowercased
-        let traitName = traitTypeName.prefix(1).lowercased() + traitTypeName.dropFirst()
-
-        let memDecl:DeclSyntax = """
-        var \(raw: traitName): \(raw: traitTypeName) = \(raw: traitTypeName)()
-        subscript(dynamicMember member: String) -> Any? {
-            // this allows us to access the trait property as a dynamic member
-            // e.g. let abc = somethingWithTrait.abc
-            if member == "\(raw: traitName)" {
-                return self.\(raw: traitName)
+        for arg in args {
+            guard let traitTypeNameRaw = arg.expression.description as String?,
+                  traitTypeNameRaw.hasSuffix(".Trait") else {
+                throw MacroError("with macro requires trait arguments ending with .Trait")
             }
+            let traitTypeName = String(traitTypeNameRaw.dropLast(6))
+            let traitName = traitTypeName.prefix(1).lowercased() + traitTypeName.dropFirst()
+            traitNames.append(String(traitName))
+            traitTypeNames.append(traitTypeName)
+            let memDecl: DeclSyntax = """
+            var \(raw: traitName): \(raw: traitTypeName) = \(raw: traitTypeName)()
+            """
+            memberDecls.append(memDecl)
+        }
+
+        // Generate a single dynamicMember subscript that checks all trait names
+        let cases = zip(traitNames, traitNames).map { name, _ in
+            """
+            if member == "\(name)" {
+                return self.\(name)
+            }
+            """
+        }.joined(separator: "\n            ")
+
+        let subDecl: DeclSyntax = """
+        subscript(dynamicMember member: String) -> Any? {
+            \(raw: cases)
             return nil
         }
         """
-        return [memDecl]
+
+        memberDecls.append(subDecl)
+        return memberDecls
     }
 }
 

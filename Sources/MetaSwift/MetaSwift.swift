@@ -39,7 +39,8 @@ public protocol WithTrait: Sendable {
 
 @attached(member, names: arbitrary)
 @attached(extension, conformances: WithTrait)
-public macro with(_ trait: TraitIdentity) =
+/// Accepts one or more traits to attach. Example: with(.of("TraitA"), .of("TraitB"))
+public macro with(_ traits: TraitIdentity...) =
     #externalMacro(module: "MetaSwiftMacros", type: "WithMacro")
 
 /// A macro that produces the name of a type as a string. For example,
